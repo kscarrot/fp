@@ -44,3 +44,10 @@ let 转置 (m: 矩阵) = Array.transpose m
 let 矩阵乘 (mx: 矩阵) (my: 矩阵) =
     mx |> Array.map (fun 行 -> 转置 my |> Array.map (fun 列 -> 行 |> 向量乘 <| 列))
 
+
+let 标量乘矩阵 (x: 标量) (m: 矩阵) = m |> Array.map (标量乘向量 x)
+
+let 矩阵加 (ma: 矩阵) (mb: 矩阵) = Array.map2 向量加 ma mb
+
+let 向量乘矩阵 (m: 矩阵) (vx: 向量) =
+    m |> Array.map (fun 行 -> 行 |> 向量乘 <| vx)
