@@ -28,16 +28,19 @@ let 标量乘 (x: 标量) (y: 标量) =
 
 
 
-let 向量加 (x: 向量) (y: 向量) = Array.map2 标量加 x y
+let 向量加 (vx: 向量) (vy: 向量) = Array.map2 标量加 vx vy
 
 
-let 向量乘 (x: 向量) (y: 向量) = Array.map2 标量乘 x y |> Array.reduce 标量加
+let 向量乘 (vx: 向量) (vy: 向量) =
+    Array.map2 标量乘 vx vy |> Array.reduce 标量加
 
 
-let 标量乘向量 (x: 标量) (y: 向量) = y |> Array.map (标量乘 x)
+let 标量乘向量 (x: 标量) (vy: 向量) =
+    vy |> Array.map (fun y -> x |> 标量乘 <| y)
 
 
 let 转置 (m: 矩阵) = Array.transpose m
 
-let 矩阵乘 (ma: 矩阵) (mb: 矩阵) =
-    ma |> Array.map (fun 行 -> mb |> 转置 |> Array.map (fun 列 -> 行 |> 向量乘 <| 列))
+let 矩阵乘 (mx: 矩阵) (my: 矩阵) =
+    mx |> Array.map (fun 行 -> 转置 my |> Array.map (fun 列 -> 行 |> 向量乘 <| 列))
+
