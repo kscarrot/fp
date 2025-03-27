@@ -28,15 +28,16 @@ let 标量乘 (x: 标量) (y: 标量) =
 
 
 
-let 向量加 (x: 向量) (y: 向量) =
-    if x.Length <> y.Length then
-        failwith "向量长度不匹配"
-
-    Array.map2 标量加 x y
+let 向量加 (x: 向量) (y: 向量) = Array.map2 标量加 x y
 
 
-let 向量乘 (x: 向量) (y: 向量) =
-    if x.Length <> y.Length then
-        failwith "向量长度不匹配"
+let 向量乘 (x: 向量) (y: 向量) = Array.map2 标量乘 x y |> Array.reduce 标量加
 
-    Array.map2 标量乘 x y |> Array.reduce 标量加
+
+let 标量乘向量 (x: 标量) (y: 向量) = y |> Array.map (标量乘 x)
+
+
+let 转置 (m: 矩阵) = Array.transpose m
+
+let 矩阵乘 (ma: 矩阵) (mb: 矩阵) =
+    ma |> Array.map (fun 行 -> mb |> 转置 |> Array.map (fun 列 -> 行 |> 向量乘 <| 列))
