@@ -5,78 +5,45 @@ import Test.Hspec
 
 spec :: Spec
 spec = do
-  describe "标量运算" $ do
-    it "数字加法" $
-      Num 1.0 `标量加` Num 2.0 `shouldBe` Num 3.0
+  describe "加法运算" $ do
+    it "标量加" $ do
+      标量加 1 2 `shouldBe` 3
+    it "向量加" $ do
+      向量加 [1, 2, 3] [4, 5, 6] `shouldBe` [5, 7, 9]
+    it "矩阵加" $ do
+      矩阵加 [[1, 2], [3, 4]] [[5, 6], [7, 8]] `shouldBe` [[6, 8], [10, 12]]
 
-    it "字符串加法" $
-      Str "hello" `标量加` Str "world" `shouldBe` Str "hello+world"
-
-    it "空字符串加法" $ do
-      Str "" `标量加` Str "test" `shouldBe` Str "test"
-      Str "test" `标量加` Str "" `shouldBe` Str "test"
-
-    it "数字乘法" $
-      Num 2.0 `标量乘` Num 3.0 `shouldBe` Num 6.0
-
-    it "字符串乘法" $
-      Str "hello" `标量乘` Str "world" `shouldBe` Str "helloworld"
-
-    it "空字符串乘法" $ do
-      Str "" `标量乘` Str "test" `shouldBe` Str ""
-      Str "test" `标量乘` Str "" `shouldBe` Str ""
-
-  describe "向量运算" $ do
-    let v1 = [Num 1.0, Num 2.0]
-    let v2 = [Num 3.0, Num 4.0]
-    let sv1 = [Str "a", Str "b"]
-    let sv2 = [Str "c", Str "d"]
-
-    it "数字向量加法" $
-      v1 `向量加` v2 `shouldBe` [Num 4.0, Num 6.0]
-
-    it "字符串向量加法" $
-      sv1 `向量加` sv2 `shouldBe` [Str "a+c", Str "b+d"]
-
-    it "数字向量点积" $
-      v1 `向量乘` v2 `shouldBe` Num 11.0
-
-    it "字符串向量点积" $
-      sv1 `向量乘` sv2 `shouldBe` Str "ac+bd"
-
-    it "标量乘数字向量" $
-      Num 2.0 `标量乘向量` v1 `shouldBe` [Num 2.0, Num 4.0]
-
-    it "标量乘字符串向量" $
-      Str "x" `标量乘向量` sv1 `shouldBe` [Str "xa", Str "xb"]
-
-  describe "矩阵运算" $ do
-    let m1 = [[Num 1.0, Num 2.0], [Num 3.0, Num 4.0]]
-    let m2 = [[Num 5.0, Num 6.0], [Num 7.0, Num 8.0]]
-    let v1 = [Num 1.0, Num 2.0]
-
-    it "矩阵转置" $
-      转置 m1 `shouldBe` [[Num 1.0, Num 3.0], [Num 2.0, Num 4.0]]
-
-    it "矩阵乘法" $
-      m1 `矩阵乘` m2 `shouldBe` [[Num 19.0, Num 22.0], [Num 43.0, Num 50.0]]
-
-    it "标量乘矩阵" $
-      Num 2.0 `标量乘矩阵` m1 `shouldBe` [[Num 2.0, Num 4.0], [Num 6.0, Num 8.0]]
-
-    it "矩阵加法" $
-      m1 `矩阵加` m2 `shouldBe` [[Num 6.0, Num 8.0], [Num 10.0, Num 12.0]]
-
-    it "向量乘矩阵" $
-      v1 `向量乘矩阵` m1 `shouldBe` [Num 7.0, Num 10.0]
-
-  describe "空矩阵和向量处理" $ do
-    it "空矩阵转置" $
+  describe "转置" $ do
+    it "空矩阵转置" $ do
       转置 [] `shouldBe` []
+    it "矩阵方阵转置" $ do
+      转置 [[1, 2], [3, 4]] `shouldBe` [[1, 3], [2, 4]]
+      转置 [[1, 0], [0, 1]] `shouldBe` [[1, 0], [0, 1]]
+      转置 [[1, 0, 0], [0, 2, 0], [0, 0, 3]] `shouldBe` [[1, 0, 0], [0, 2, 0], [0, 0, 3]]
+    it "矩阵非方阵转置" $ do
+      转置 [[1, 2, 3], [4, 5, 6]] `shouldBe` [[1, 4], [2, 5], [3, 6]]
+      转置 [[1, 2, 3]] `shouldBe` [[1], [2], [3]]
 
-  describe "字符串矩阵乘法" $ do
-    let m1 = [[Str "a", Str "b"], [Str "c", Str "d"]]
-    let m2 = [[Str "e", Str "f"], [Str "g", Str "h"]]
+  describe "标量乘" $ do
+    it "标量乘" $ do
+      标量乘 2 3 `shouldBe` 6
+    it "标量乘向量" $ do
+      标量乘向量 2 [1, 2, 3] `shouldBe` [2, 4, 6]
+    it "标量乘矩阵" $ do
+      标量乘矩阵 2 [[1, 2], [3, 4]] `shouldBe` [[2, 4], [6, 8]]
 
-    it "字符串矩阵乘法" $
-      m1 `矩阵乘` m2 `shouldBe` [[Str "ae+bg", Str "af+bh"], [Str "ce+dg", Str "cf+dh"]]
+  describe "向量乘" $ do
+    it "向量乘" $ do
+      向量乘 [1, 2, 3] [4, 5, 6] `shouldBe` 32
+    it "向量乘矩阵" $ do
+      向量乘矩阵 [1, 2, 3] [[4, 5], [6, 7], [8, 9]] `shouldBe` [40,46]
+    it "矩阵乘向量" $ do
+      矩阵乘向量 [[1, 2], [3, 4]] [5, 6] `shouldBe` [17, 39]
+
+  describe "矩阵乘" $ do
+    it "矩阵乘" $ do
+      矩阵乘 [[1, 2], [3, 4]] [[5, 6], [7, 8]] `shouldBe` [[19, 22], [43, 50]]
+    it "非方阵矩阵乘" $ do
+      矩阵乘 [[1, 2, 3], [4, 5, 6]] [[7, 8], [9, 10], [11, 12]] `shouldBe` [[58, 64], [139, 154]]
+    it "矩阵乘PointFree" $ do
+      矩阵乘PointFree [[1, 2], [3, 4]] [[5, 6], [7, 8]] `shouldBe` [[19, 22], [43, 50]]
