@@ -14,6 +14,8 @@ module Linear
     矩阵乘向量,
     矩阵乘,
     矩阵乘PointFree,
+    零矩阵,
+    单位矩阵,
   )
 where
 
@@ -22,6 +24,13 @@ type Scalar = Double
 type Vector = [Scalar]
 
 type Matrix = [Vector]
+
+零矩阵 :: Int -> Int -> Matrix
+-- 零矩阵 = [[0 | _ <- [1..n]] | _ <- [1..m]]
+零矩阵 n m = replicate n (replicate m 0)
+
+单位矩阵 :: Int -> Matrix
+单位矩阵 n = [[if i == j then 1 else 0 | j <- [0..n-1]] | i <- [0..n-1]]
 
 标量加 :: Scalar -> Scalar -> Scalar
 标量加 x y = x + y
