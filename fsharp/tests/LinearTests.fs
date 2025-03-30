@@ -5,283 +5,133 @@ open FsUnit.Xunit
 open Linear
 
 [<Fact>]
-let ``浮点数相加应该返回正确的和`` () =
-    数字 1.5 |> 标量加 <| 数字 2.5 |> should equal (数字 4.0)
+let ``浮点数相加应该返回正确的和`` () = 1.5 |> 标量加 <| 2.5 |> should equal 4.0
 
 
 [<Fact>]
-let ``浮点数相加兼容整形 返回浮点数`` () =
-    数字 5.0 |> 标量加 <| 数字 5 |> should equal (数字 10.0)
+let ``浮点数相加兼容整形 返回浮点数`` () = 5.0 |> 标量加 <| 5 |> should equal 10.0
 
-
-[<Fact>]
-let ``整形数相加应该返回正确的浮点数结果`` () =
-    数字 1 |> 标量加 <| 数字 2 |> should equal (数字 3.0)
-
-
-[<Fact>]
-let ``字符串相加应该返回正确的连接结果`` () =
-    字符串 "Hello" |> 标量加 <| 字符串 "World" |> should equal (字符串 "Hello+World")
-
-
-[<Fact>]
-let ``字符串相加空串处理`` () =
-    字符串 "" |> 标量加 <| 字符串 "World" |> should equal (字符串 "World")
-    字符串 "" |> 标量加 <| 字符串 "" |> should equal (字符串 "")
-
-
-[<Fact>]
-let ``不同类型相加应该抛出异常`` () =
-    (fun () -> 数字 1.5 |> 标量加 <| 字符串 "World" |> ignore)
-    |> should throw typeof<System.Exception>
-
-
-[<Fact>]
-let ``浮点数相乘应该返回正确的积`` () =
-    数字 1.5 |> 标量乘 <| 数字 2.0 |> should equal (数字 3.0)
-
-
-[<Fact>]
-let ``字符串相乘应该返回正确的连接结果`` () =
-    字符串 "Hello" |> 标量乘 <| 字符串 "World" |> should equal (字符串 "HelloWorld")
-
-
-[<Fact>]
-let ``空字符串相乘应该返回空字符串`` () =
-    字符串 "" |> 标量乘 <| 字符串 "World" |> should equal (字符串 "")
-
-
-[<Fact>]
-let ``不同类型相乘应该抛出异常`` () =
-    (fun () -> 数字 1.5 |> 标量乘 <| 字符串 "World" |> ignore)
-    |> should throw typeof<System.Exception>
-
+let ``整形数相加应该返回正确的浮点数结果`` () = float 1 |> 标量加 <| 2 |> should equal 3.0
 
 [<Fact>]
 let ``向量相加应该返回正确的和`` () =
-    let x = [| 数字 1.0; 数字 2.0; 数字 3.0 |]
-    let y = [| 数字 4.0; 数字 5.0; 数字 6.0 |]
+    let x = [| 1.0; 2.0; 3.0 |]
+    let y = [| 4.0; 5.0; 6.0 |]
     let result = x |> 向量加 <| y
 
     result.Length |> should equal 3
-    result.[0] |> should equal (数字 5.0)
-    result.[1] |> should equal (数字 7.0)
-    result.[2] |> should equal (数字 9.0)
+    result.[0] |> should equal 5.0
+    result.[1] |> should equal 7.0
+    result.[2] |> should equal 9.0
 
 
-
-[<Fact>]
-let ``字符串向量相加应该返回正确的连接结果`` () =
-    let x = [| 字符串 "Hello"; 字符串 "World" |]
-    let y = [| 字符串 " "; 字符串 "!" |]
-    let result = x |> 向量加 <| y
-
-    result.Length |> should equal 2
-    result.[0] |> should equal (字符串 "Hello+ ")
-    result.[1] |> should equal (字符串 "World+!")
-
-
-[<Fact>]
-let ``向量相乘应该返回正确的元素积`` () =
-    let x = [| 数字 1.0; 数字 2.0; 数字 3.0 |]
-    let y = [| 数字 4.0; 数字 5.0; 数字 6.0 |]
-    // 1⋅4+2⋅5+3⋅6	 = 32
-    x |> 向量乘 <| y |> should equal (数字 32.0)
-
-
-[<Fact>]
-let ``字符串向量相乘应该返回正确的连接结果`` () =
-    let x = [| 字符串 "x_1"; 字符串 "y_1"; 字符串 "z_1" |]
-    let y = [| 字符串 "x_2"; 字符串 "y_2"; 字符串 "z_2" |]
-    x |> 向量乘 <| y |> should equal (字符串 "x_1x_2+y_1y_2+z_1z_2")
-
-
-
-
-[<Fact>]
-let ``标量乘向量应该返回正确的结果`` () =
-    let x = 数字 2.0
-    let y = [| 数字 1.0; 数字 2.0; 数字 3.0 |]
-    let result = x |> 标量乘向量 <| y
-    result.Length |> should equal 3
-    result.[0] |> should equal (数字 2.0)
-    result.[1] |> should equal (数字 4.0)
-    result.[2] |> should equal (数字 6.0)
-
-let ``字符串标量乘字符串向量应该返回正确结果`` () =
-    let x = 字符串 "a"
-    let y = [| 字符串 "x"; 字符串 "y"; 字符串 "z" |]
-    let result = x |> 标量乘向量 <| y
-    result.Length |> should equal 3
-    result.[0] |> should equal (字符串 "ax")
-    result.[1] |> should equal (字符串 "ay")
-    result.[2] |> should equal (字符串 "az")
 
 
 [<Fact>]
 let ``矩阵转置应该返回正确的结果`` () =
-    let m = [| [| 数字 1.0; 数字 2.0 |]; [| 数字 3.0; 数字 4.0 |] |]
+    let m = [| [| 1.0; 2.0 |]; [| 3.0; 4.0 |] |]
     let result = m |> 转置
-    result.[0] |> should equal [| 数字 1.0; 数字 3.0 |]
-    result.[1] |> should equal [| 数字 2.0; 数字 4.0 |]
+    result.[0] |> should equal [| 1.0; 3.0 |]
+    result.[1] |> should equal [| 2.0; 4.0 |]
 
 
 [<Fact>]
 let ``对角矩阵转置应该等于自身`` () =
-    let m =
-        [| [| 数字 1.0; 数字 0.0; 数字 0.0 |]
-           [| 数字 0.0; 数字 2.0; 数字 0.0 |]
-           [| 数字 0.0; 数字 0.0; 数字 3.0 |] |]
+    let m = [| [| 1.0; 0.0; 0.0 |]; [| 0.0; 2.0; 0.0 |]; [| 0.0; 0.0; 3.0 |] |]
 
     let result = m |> 转置
     result.[0] |> should equal m.[0]
     result.[1] |> should equal m.[1]
     result.[2] |> should equal m.[2]
 
+[<Fact>]
+let ``矩阵加应该返回正确的结果`` () =
+    let a = [| [| 1.0; 2.0 |]; [| 3.0; 4.0 |] |]
+    let b = [| [| 5.0; 6.0 |]; [| 7.0; 8.0 |] |]
+    let result = a |> 矩阵加 <| b
+    result.[0] |> should equal [| 6.0; 8.0 |]
+    result.[1] |> should equal [| 10.0; 12.0 |]
+
+
+[<Fact>]
+let ``浮点数相乘应该返回正确的积`` () = 1.5 |> 标量乘 <| 2.0 |> should equal 3.0
+
+
+[<Fact>]
+let ``标量乘向量应该返回正确的结果`` () =
+    let x = 2.0
+    let y = [| 1.0; 2.0; 3.0 |]
+    let result = x |> 标量乘向量 <| y
+    result.Length |> should equal 3
+    result.[0] |> should equal 2.0
+    result.[1] |> should equal 4.0
+    result.[2] |> should equal 6.0
+
+
+[<Fact>]
+let ``向量相乘应该返回正确的元素积`` () =
+    let x = [| 1.0; 2.0; 3.0 |]
+    let y = [| 4.0; 5.0; 6.0 |]
+    // 1⋅4+2⋅5+3⋅6	 = 32
+    x |> 向量乘 <| y |> should equal 32.0
+
+
+
+[<Fact>]
+let ``标量乘矩阵应该返回正确的结果`` () =
+    let x = 2.0
+    let m = [| [| 1.0; 2.0 |]; [| 3.0; 4.0 |] |]
+    let result = x |> 标量乘矩阵 <| m
+    result.[0] |> should equal [| 2.0; 4.0 |]
+    result.[1] |> should equal [| 6.0; 8.0 |]
+
 
 [<Fact>]
 let ``矩阵乘法应该返回正确的结果`` () =
-    let a = [| [| 数字 1.0; 数字 2.0 |]; [| 数字 3.0; 数字 4.0 |] |]
-    let b = [| [| 数字 5.0; 数字 6.0 |]; [| 数字 7.0; 数字 8.0 |] |]
+    let a = [| [| 1.0; 2.0 |]; [| 3.0; 4.0 |] |]
+    let b = [| [| 5.0; 6.0 |]; [| 7.0; 8.0 |] |]
     let result = a |> 矩阵乘 <| b
-    result.[0] |> should equal [| 数字 19.0; 数字 22.0 |]
-    result.[1] |> should equal [| 数字 43.0; 数字 50.0 |]
+
+
+    let expected = [| [| 19.0; 22.0 |]; [| 43.0; 50.0 |] |]
+    矩阵相等 result expected |> should equal true
 
 
 [<Fact>]
-let ``字符串矩阵乘应该返回正确的结果`` () =
-    let a = [| [| 字符串 "a"; 字符串 "b" |]; [| 字符串 "c"; 字符串 "d" |] |]
-    let b = [| [| 字符串 "e"; 字符串 "f" |]; [| 字符串 "g"; 字符串 "h" |] |]
-    let result = a |> 矩阵乘 <| b
-    result.[0] |> should equal [| 字符串 "ae+bg"; 字符串 "af+bh" |]
-    result.[1] |> should equal [| 字符串 "ce+dg"; 字符串 "cf+dh" |]
-
-
-[<Fact>]
-let ``数字标量乘矩阵应该返回正确的结果`` () =
-    let x = 数字 2.0
-    let m = [| [| 数字 1.0; 数字 2.0 |]; [| 数字 3.0; 数字 4.0 |] |]
-    let result = x |> 标量乘矩阵 <| m
-    result.[0] |> should equal [| 数字 2.0; 数字 4.0 |]
-    result.[1] |> should equal [| 数字 6.0; 数字 8.0 |]
-
-[<Fact>]
-let ``字符串标量乘矩阵应该返回正确的结果`` () =
-    let x = 字符串 "前缀_"
-    let m = [| [| 字符串 "a"; 字符串 "b" |]; [| 字符串 "c"; 字符串 "d" |] |]
-    let result = x |> 标量乘矩阵 <| m
-    result.[0] |> should equal [| 字符串 "前缀_a"; 字符串 "前缀_b" |]
-    result.[1] |> should equal [| 字符串 "前缀_c"; 字符串 "前缀_d" |]
-
-[<Fact>]
-let ``空字符串标量乘矩阵应该返回空字符串矩阵`` () =
-    let x = 字符串 ""
-    let m = [| [| 字符串 "a"; 字符串 "b" |]; [| 字符串 "c"; 字符串 "d" |] |]
-    let result = x |> 标量乘矩阵 <| m
-    result.[0] |> should equal [| 字符串 ""; 字符串 "" |]
-    result.[1] |> should equal [| 字符串 ""; 字符串 "" |]
-
-[<Fact>]
-let ``不同类型标量乘矩阵应该抛出异常`` () =
-    let x = 数字 2.0
-    let m = [| [| 字符串 "a"; 字符串 "b" |]; [| 字符串 "c"; 字符串 "d" |] |]
-    (fun () -> x |> 标量乘矩阵 <| m |> ignore) |> should throw typeof<System.Exception>
-
-
-
-[<Fact>]
-let ``矩阵加应该返回正确的结果`` () =
-    let a = [| [| 数字 1.0; 数字 2.0 |]; [| 数字 3.0; 数字 4.0 |] |]
-    let b = [| [| 数字 5.0; 数字 6.0 |]; [| 数字 7.0; 数字 8.0 |] |]
-    let result = a |> 矩阵加 <| b
-    result.[0] |> should equal [| 数字 6.0; 数字 8.0 |]
-    result.[1] |> should equal [| 数字 10.0; 数字 12.0 |]
-
+let ``矩阵乘向量阵应该返回正确的结果`` () =
+    let v = [| 1.0; 2.0 |]
+    let m = [| [| 3.0; 4.0 |]; [| 5.0; 6.0 |] |]
+    let result = m |> 矩阵乘向量 <| v
+    result |> should equal [| 11.0; 17.0 |]
 
 [<Fact>]
 let ``向量乘矩阵应该返回正确的结果`` () =
-    let v = [| 数字 1.0; 数字 2.0 |]
-    let m = [| [| 数字 3.0; 数字 4.0 |]; [| 数字 5.0; 数字 6.0 |] |]
-    let result = m |> 向量乘矩阵 <| v
-    result |> should equal [| 数字 11.0; 数字 17.0 |]
-
+    let v = [| 1.0; 2.0; 3.0 |]
+    let m = [| [| 4.0; 5.0 |]; [| 6.0; 7.0 |]; [| 8.0; 9.0 |] |]
+    let result = v |> 向量乘矩阵 <| m
+    result |> should equal [| 40.0; 46.0 |]
 
 [<Fact>]
-let ``乘函数应该正确处理所有乘法组合`` () =
-    // 标量乘标量
-    let x1 = 标量 (数字 2.0)
-    let y1 = 标量 (数字 3.0)
-    x1 |> 乘 <| y1 |> should equal (标量 (数字 6.0))
+let ``矩阵乘向量应该返回正确的结果`` () =
+    let m = [| [| 1.0; 2.0 |]; [| 3.0; 4.0 |] |]
+    let v = [| 5.0; 6.0 |]
+    let result = m |> 矩阵乘向量 <| v
+    result |> should equal [| 17.0; 39.0 |]
 
-    // 标量乘向量
-    let x2 = 标量 (数字 2.0)
-    let y2 = 向量 [| 数字 1.0; 数字 2.0; 数字 3.0 |]
-    x2 |> 乘 <| y2 |> should equal (向量 [| 数字 2.0; 数字 4.0; 数字 6.0 |])
+[<Fact>]
+let ``零矩阵应该正确生成`` () =
+    let 零 = 零矩阵 2 3
+    零.Length |> should equal 2
+    零.[0].Length |> should equal 3
+    零.[0].[0] |> should equal 0.0
+    零.[1].[2] |> should equal 0.0
 
-    // 标量乘矩阵
-    let x3 = 标量 (数字 2.0)
-    let y3 = 矩阵 [| 
-        [| 数字 1.0; 数字 2.0 |]
-        [| 数字 3.0; 数字 4.0 |] 
-    |]
-    x3 |> 乘 <| y3 |> should equal (矩阵 [| 
-        [| 数字 2.0; 数字 4.0 |]
-        [| 数字 6.0; 数字 8.0 |] 
-    |])
-
-    // 向量乘标量
-    let x4 = 向量 [| 数字 1.0; 数字 2.0; 数字 3.0 |]
-    let y4 = 标量 (数字 2.0)
-    x4 |> 乘 <| y4 |> should equal (向量 [| 数字 2.0; 数字 4.0; 数字 6.0 |])
-
-    // 向量乘向量
-    let x5 = 向量 [| 数字 1.0; 数字 2.0; 数字 3.0 |]
-    let y5 = 向量 [| 数字 4.0; 数字 5.0; 数字 6.0 |]
-    x5 |> 乘 <| y5 |> should equal (标量 (数字 32.0))
-
-    // 向量乘矩阵
-    let x6 = 向量 [| 数字 1.0; 数字 2.0 |]
-    let y6 = 矩阵 [| 
-        [| 数字 3.0; 数字 4.0 |]
-        [| 数字 5.0; 数字 6.0 |] 
-    |]
-    x6 |> 乘 <| y6 |> should equal (向量 [| 数字 11.0; 数字 17.0 |])
-
-    // 矩阵乘标量
-    let x7 = 矩阵 [| 
-        [| 数字 1.0; 数字 2.0 |]
-        [| 数字 3.0; 数字 4.0 |] 
-    |]
-    let y7 = 标量 (数字 2.0)
-    x7 |> 乘 <| y7 |> should equal (矩阵 [| 
-        [| 数字 2.0; 数字 4.0 |]
-        [| 数字 6.0; 数字 8.0 |] 
-    |])
-
-    // 矩阵乘向量
-    let x8 = 矩阵 [| 
-        [| 数字 1.0; 数字 2.0 |]
-        [| 数字 3.0; 数字 4.0 |] 
-    |]
-    let y8 = 向量 [| 数字 5.0; 数字 6.0 |]
-    x8 |> 乘 <| y8 |> should equal (向量 [| 数字 17.0; 数字 39.0 |])
-
-    // 矩阵乘矩阵
-    let x9 = 矩阵 [| 
-        [| 数字 1.0; 数字 2.0 |]
-        [| 数字 3.0; 数字 4.0 |] 
-    |]
-    let y9 = 矩阵 [| 
-        [| 数字 5.0; 数字 6.0 |]
-        [| 数字 7.0; 数字 8.0 |] 
-    |]
-    x9 |> 乘 <| y9 |> should equal (矩阵 [| 
-        [| 数字 19.0; 数字 22.0 |]
-        [| 数字 43.0; 数字 50.0 |] 
-    |])
-
-    // 不支持的类型组合
-    let x10 = 标量 (数字 1.0)
-    let y10 = 标量 (字符串 "test")
-    (fun () -> x10 |> 乘 <| y10 |> ignore)
-    |> should throw typeof<System.Exception>
+[<Fact>]
+let ``单位矩阵应该正确生成`` () =
+    let 单位 = 单位矩阵 3
+    单位.Length |> should equal 3
+    单位.[0].Length |> should equal 3
+    单位.[0].[0] |> should equal 1.0
+    单位.[0].[1] |> should equal 0.0
+    单位.[1].[1] |> should equal 1.0
+    单位.[2].[2] |> should equal 1.0

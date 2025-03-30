@@ -7,6 +7,7 @@
 
     <ItemGroup>
         <Compile Include="LinearTests.fs"/>
+        <Compile Include="LinearWithStringTests.fs"/>
     </ItemGroup>
 
     <ItemGroup>
