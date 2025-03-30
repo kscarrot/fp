@@ -29,10 +29,10 @@ let 向量乘矩阵 (vx: 向量) (my: 矩阵) =
 let 矩阵乘 (mx: 矩阵) (my: 矩阵) =
     mx |> Array.map (fun 行 -> 转置 my |> Array.map (fun 列 -> 行 |> 向量乘 <| 列))
 
-let 单位矩阵 (n: int) =
+let 单位矩阵 (n: int) : 矩阵 =
     Array.init n (fun i -> Array.init n (fun j -> if i = j then 1.0 else 0.0))
 
-let 零矩阵 (n: int) (m: int) =
+let 零矩阵 (n: int) (m: int) : 矩阵 =
     Array.init n (fun _ -> Array.init m (fun _ -> 0.0))
 
 
@@ -57,55 +57,52 @@ type 环元 =
     | 标量 of 标量
     | 向量 of 向量
     | 矩阵 of 矩阵
-    static member 乘 (x: 标量, y: 标量) : 标量 = 标量乘 x y
-    static member 乘 (x: 标量, y: 向量) : 向量 = 标量乘向量 x y
-    static member 乘 (x: 标量, y: 矩阵) : 矩阵 = 标量乘矩阵 x y
 
-    static member 乘 (x: 向量, y: 标量) : 向量 = 标量乘向量 y x
-    static member 乘 (x: 向量, y: 向量) : 标量 = 向量乘 x y
-    static member 乘 (x: 向量, y: 矩阵) : 向量 = 向量乘矩阵 x y
+type 环(value: 环元) =
+    member this.value = value
 
-    static member 乘 (x: 矩阵, y: 标量) : 矩阵 = 标量乘矩阵 y x
-    static member 乘 (x: 矩阵, y: 向量) : 向量 = 矩阵乘向量 x y
-    static member 乘 (x: 矩阵, y: 矩阵) : 矩阵 = 矩阵乘 x y
+    static member (<*>)(x: 环, y: 环) =
+        match x.value, y.value with
+        | 标量 x, 标量 y -> 环 (标量 (x * y))
+        | 标量 x, 向量 y -> 环 (向量 (标量乘向量 x y))
+        | 标量 x, 矩阵 y -> 环 (矩阵 (标量乘矩阵 x y))
+        | 向量 x, 标量 y -> 环 (向量 (标量乘向量 y x))
+        | 向量 x, 向量 y -> 环 (标量 (向量乘 x y))
+        | 向量 x, 矩阵 y -> 环 (向量 (向量乘矩阵 x y))
+        | 矩阵 x, 标量 y -> 环 (矩阵 (标量乘矩阵 y x))
+        | 矩阵 x, 向量 y -> 环 (向量 (矩阵乘向量 x y))
+        | 矩阵 x, 矩阵 y -> 环 (矩阵 (矩阵乘 x y))
 
+    static member (<+>)(x: 环, y: 环) =
+        match x.value, y.value with
+        | 标量 x, 标量 y -> 环 (标量 (x + y))
+        | 向量 x, 向量 y -> 环 (向量 (向量加 x y))
+        | 矩阵 x, 矩阵 y -> 环 (矩阵 (矩阵加 x y))
+        | _ -> failwith "不支持的类型"
 
-// let inline (<*>) x y =
-//     match (x, y) with
-//     | 标量 x, 标量 y -> 标量 (x * y)
-//     | 标量 x, 向量 y -> 向量 (标量乘向量 x y)
-//     | 标量 x, 矩阵 y -> 矩阵 (标量乘矩阵 x y)
-//     | 向量 x, 标量 y -> 向量 (标量乘向量 y x)
-//     | 向量 x, 向量 y -> 标量 (向量乘 x y)
-//     | 向量 x, 矩阵 y -> 向量 (向量乘矩阵 x y)
-//     | 矩阵 x, 标量 y -> 矩阵 (标量乘矩阵 y x)
-//     | 矩阵 x, 向量 y -> 向量 (矩阵乘向量 x y)
-//     | 矩阵 x, 矩阵 y -> 矩阵 (矩阵乘 x y)
+    override this.ToString() =
+        match this.value with
+        | 标量 x -> sprintf "%f" x
+        | 向量 x -> sprintf "%A" x
+        | 矩阵 x -> sprintf "%A" x
 
-// let inline (<*>) (x: 标量) (y: 标量) = 标量乘 x y
-// let inline (<*>) (x: 标量) (y: 向量) = 标量乘向量 x y
-// let inline (<*>) (x: 标量) (y: 矩阵) = 标量乘矩阵 x y
-// let inline (<*>) (x: 向量) (y: 矩阵) = 向量乘矩阵 x y
-// let inline (<*>) (x: 向量) (y: 向量) = 向量乘 x y
-// let inline (<*>) (x: 向量) (y: 标量) = 标量乘向量 y x
-// let inline (<*>) (x: 矩阵) (y: 标量) = 标量乘矩阵 y x
-// let inline (<*>) (x: 矩阵) (y: 向量) = 矩阵乘向量 x y
-// let inline (<*>) (x: 矩阵) (y: 矩阵) = 矩阵乘 x y
+    override this.Equals(obj) =
+        match obj with
+        | :? 环 as other ->
+            match this.value, other.value with
+            | 标量 x, 标量 y -> x = y
+            | 向量 x, 向量 y -> Array.forall2 (=) x y
+            | 矩阵 x, 矩阵 y -> 矩阵相等 x y
+            | _ -> false
+        | _ -> false
 
-// type 乘法约束<'T, 'U, 'R> =
-//     static member 乘 : 'T * 'U -> 'R
+    override this.GetHashCode() =
+        match this.value with
+        | 标量 x -> hash x
+        | 向量 x -> hash x
+        | 矩阵 x -> hash x
 
-// type 乘法约束<标量,标量,标量> with
-//     static member 乘 (x:标量, y:标量) = 标量乘 x y
-
-// type 乘法约束<标量,向量,向量> =
-//     static member 乘 : 标量 * 向量 -> 向量
-
-
-
-//TODO: 封装加法
-
-//TODO: latex 输出
+//TODO: latex 输出 type类里实现
 
 //TODO: 行列式
 

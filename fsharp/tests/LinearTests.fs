@@ -5,6 +5,15 @@ open FsUnit.Xunit
 open Linear
 
 [<Fact>]
+let ``矩阵相等验证`` () =
+    let a = [| [| 1.0; 2.0 |]; [| 3.0; 4.0 |] |]
+    let b = [| [| 1.0; 2.0 |]; [| 3.0; 4.0 |] |]
+    let c = [| [| 1.0; 2.0 |]; [| 3.0; 5.0 |] |]
+    矩阵相等 a b |> should equal true
+    矩阵相等 a c |> should equal false
+
+
+[<Fact>]
 let ``浮点数相加应该返回正确的和`` () = 1.5 |> 标量加 <| 2.5 |> should equal 4.0
 
 
@@ -135,3 +144,124 @@ let ``单位矩阵应该正确生成`` () =
     单位.[0].[1] |> should equal 0.0
     单位.[1].[1] |> should equal 1.0
     单位.[2].[2] |> should equal 1.0
+
+
+[<Fact>]
+let ``环元相等应该返回正确的结果`` () =
+    let s1 = 环 (标量 2.0)
+    let s2 = 环 (标量 2.0)
+    let s3 = 环 (标量 3.0)
+    let v1 = 环 (向量 [| 1.0; 2.0 |])
+    let v2 = 环 (向量 [| 1.0; 2.0 |])
+    let v3 = 环 (向量 [| 1.0; 3.0 |])
+    let m1 = 环 (矩阵 [| [| 1.0; 2.0 |]; [| 3.0; 4.0 |] |])
+    let m2 = 环 (矩阵 [| [| 1.0; 2.0 |]; [| 3.0; 4.0 |] |])
+
+    s1 = s2 |> should equal true
+    s1 = s3 |> should equal false
+    v1 = v2 |> should equal true
+    v1 = v3 |> should equal false
+    s1 = v1 |> should equal false
+    s1 = m1 |> should equal false
+    v1 = m1 |> should equal false
+    m1 = m2 |> should equal true
+
+[<Fact>]
+let ``环元加法应该返回正确的结果`` () =
+    let s1 = 环 (标量 2.0)
+    let s2 = 环 (标量 3.0)
+    let v1 = 环 (向量 [| 1.0; 2.0 |])
+    let v2 = 环 (向量 [| 3.0; 4.0 |])
+    let m1 = 环 (矩阵 [| [| 1.0; 2.0 |]; [| 3.0; 4.0 |] |])
+    let m2 = 环 (矩阵 [| [| 5.0; 6.0 |]; [| 7.0; 8.0 |] |])
+
+    (s1 <+> s2) = (环 (标量 5.0)) |> should equal true
+
+    (v1 <+> v2) = (环 (向量 [| 4.0; 6.0 |])) |> should equal true
+
+    (m1 <+> m2) = (环 (矩阵 [| [| 6.0; 8.0 |]; [| 10.0; 12.0 |] |])) |> should equal true
+
+    // 不同类型相加抛出异常
+    (fun () -> s1 <+> v1 |> ignore) |> should throw typeof<System.Exception>
+    (fun () -> s1 <+> m1 |> ignore) |> should throw typeof<System.Exception>
+    (fun () -> v1 <+> m1 |> ignore) |> should throw typeof<System.Exception>
+
+[<Fact>]
+let ``环元乘法应该返回正确的结果`` () =
+    let s1 = 环 (标量 2.0)
+    let s2 = 环 (标量 3.0)
+    let v1 = 环 (向量 [| 1.0; 2.0 |])
+    let v2 = 环 (向量 [| 3.0; 4.0 |])
+    let m1 = 环 (矩阵 [| [| 1.0; 2.0 |]; [| 3.0; 4.0 |] |])
+    let m2 = 环 (矩阵 [| [| 5.0; 6.0 |]; [| 7.0; 8.0 |] |])
+
+
+    (s1 <*> s2) = (环 (标量 6.0)) |> should equal true
+    (s1 <*> s2 <*> s1) = (环 (标量 12.0)) |> should equal true
+
+    (v1 <*> v2) = (环 (标量 11.0)) |> should equal true
+
+    (m1 <*> m2) = (环 (矩阵 [| [| 19.0; 22.0 |]; [| 43.0; 50.0 |] |]))
+    |> should equal true
+
+    (s1 <*> v1) = (环 (向量 [| 2.0; 4.0 |])) |> should equal true
+
+    (s1 <*> m1) = (环 (矩阵 [| [| 2.0; 4.0 |]; [| 6.0; 8.0 |] |])) |> should equal true
+
+    (v1 <*> m1) = (环 (向量 [| 7.0; 10.0 |])) |> should equal true
+
+    (m1 <*> v1) = (环 (向量 [| 5.0; 11.0 |])) |> should equal true
+
+    let 零矩阵环 = 环 (矩阵 (零矩阵 2 2))
+    (m1 <*> 零矩阵环) = 零矩阵环 |> should equal true
+
+    let 单位矩阵环 = 环 (矩阵 (单位矩阵 2))
+    (m1 <*> 单位矩阵环) = m1 |> should equal true
+    (单位矩阵环 <*> m1) = m1 |> should equal true
+    (单位矩阵环 <*> m1 <*> 单位矩阵环) = m1 |> should equal true
+    (m1 <*> 单位矩阵环 <*> m2) = (m1 <*> m2) |> should equal true
+
+
+
+
+[<Fact>]
+let ``矩阵结合律简单验证`` () =
+    let a = 环 (矩阵 ([| [| 1.0; 2.0 |]; [| 3.0; 4.0 |] |]))
+    let b = 环 (矩阵 ([| [| 5.0; 6.0 |]; [| 7.0; 8.0 |] |]))
+    let c = 环 (矩阵 ([| [| 9.0; 10.0 |]; [| 11.0; 12.0 |] |]))
+
+
+    (a <*> (b <*> c)) = ((a <*> b) <*> c) |> should equal true
+
+[<Fact>]
+let ``矩阵乘不满足交换律验证`` () =
+    let a = 环 (矩阵 ([| [| 1.0; 2.0 |]; [| 3.0; 4.0 |] |]))
+    let b = 环 (矩阵 ([| [| 5.0; 6.0 |]; [| 7.0; 8.0 |] |]))
+
+    (a <*> b) = (b <*> a) |> should equal false
+
+[<Fact>]
+let ``矩阵的分配律简单验证`` () =
+    let a = 环 (矩阵 ([| [| 1.0; 2.0 |]; [| 3.0; 4.0 |] |]))
+    let b = 环 (矩阵 ([| [| 5.0; 6.0 |]; [| 7.0; 8.0 |] |]))
+    let c = 环 (矩阵 ([| [| 9.0; 10.0 |]; [| 11.0; 12.0 |] |]))
+
+    (a <*> (b <+> c)) = ((a <*> b) <+> (a <*> c)) |> should equal true
+    ((a <+> b) <*> c) = ((a <*> c) <+> (b <*> c)) |> should equal true
+
+[<Fact>]
+let ``矩阵乘法转置简单验证`` () =
+    let 矩阵A = [| [| 1.0; 2.0 |]; [| 3.0; 4.0 |] |]
+    let 矩阵B = [| [| 5.0; 6.0 |]; [| 7.0; 8.0 |] |]
+    let A = 环 (矩阵 矩阵A)
+    let B = 环 (矩阵 矩阵B)
+    let AT = 环 (矩阵 (转置 矩阵A))
+    let BT = 环 (矩阵 (转置 矩阵B))
+
+
+    let AB_T =
+        match (A <*> B).value with
+        | 矩阵 M -> 环 (矩阵 (转置 M))
+        | _ -> failwith "结果不是矩阵"
+
+    AB_T = (BT <*> AT) |> should equal true
