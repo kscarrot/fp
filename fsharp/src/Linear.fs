@@ -19,11 +19,10 @@ let 向量乘 (vx: 向量) (vy: 向量) =
 let 标量乘向量 (x: 标量) (vy: 向量) = Array.map (标量乘 x) vy
 let 标量乘矩阵 (x: 标量) (m: 矩阵) = m |> Array.map (标量乘向量 x)
 
-let 矩阵乘向量 (mx: 矩阵) (vy: 向量) =
+let 矩阵乘向量 (mx: 矩阵) (vy: 向量) : 向量 =
     mx |> Array.map (fun 行 -> 行 |> 向量乘 <| vy)
 
-
-let 向量乘矩阵 (vx: 向量) (my: 矩阵) =
+let 向量乘矩阵 (vx: 向量) (my: 矩阵) : 向量 =
     转置 my |> Array.map (fun 列 -> 列 |> 向量乘 <| vx)
 
 let 矩阵乘 (mx: 矩阵) (my: 矩阵) =
@@ -52,6 +51,66 @@ let 矩阵相等 (arr1: 矩阵) (arr2: 矩阵) =
                     Array.forall2 (=) row1 row2)
             arr1
             arr2
+
+let 右下 行坐标 列坐标 范数 = (行坐标 + 1) % 范数, (列坐标 + 1) % 范数
+let 左下 行坐标 列坐标 范数 = (行坐标 + 1) % 范数, (列坐标 - 1 + 范数) % 范数
+
+let 方阵对角列 (m: 矩阵, 下一个) =
+    let 范数 = Array.length m
+
+    let rec 获取对角线 行坐标 列坐标 剩余步数 累积数组 =
+        if 剩余步数 = 0 then
+            Array.rev 累积数组
+        else
+            let 当前元素 = m.[行坐标].[列坐标]
+            let 新行坐标, 新列坐标 = 下一个 行坐标 列坐标 范数
+            获取对角线 新行坐标 新列坐标 (剩余步数 - 1) (Array.append [| 当前元素 |] 累积数组)
+
+    let 所有对角线 = Array.init 范数 (fun 初始列坐标 -> 获取对角线 0 初始列坐标 范数 [||])
+
+    所有对角线
+
+let 方阵右对角 矩阵 = 方阵对角列 (矩阵, 右下)
+let 方阵左对角 矩阵 = 方阵对角列 (矩阵, 左下)
+
+let 对角乘积和 矩阵 =
+    矩阵 |> Array.map (fun 行 -> Array.reduce 标量乘 行) |> Array.reduce 标量加
+
+
+let 三阶行列式 矩阵 =
+    let 右对角 = 方阵右对角 矩阵
+    let 左对角 = 方阵左对角 矩阵
+    对角乘积和 右对角 - 对角乘积和 左对角
+
+
+
+// 获取余子式矩阵
+let 余子式 矩阵 行坐标 列坐标 =
+    矩阵
+    |> Array.mapi (fun i row' ->
+        if i <> 行坐标 then
+            row'
+            |> Array.mapi (fun j x -> if j <> 列坐标 then Some x else None)
+            |> Array.choose id
+            |> Some
+        else
+            None)
+    |> Array.choose id
+
+
+let rec 行列式 (矩阵: 矩阵) =
+    let 范数 = Array.length 矩阵
+
+    match 范数 with
+    | 1 -> 矩阵.[0].[0]
+    | 2 -> 矩阵.[0].[0] * 矩阵.[1].[1] - 矩阵.[0].[1] * 矩阵.[1].[0]
+    | _ ->
+        [ 0 .. 范数 - 1 ]
+        |> List.map (fun 系数 ->
+            let 符号 = if 系数 % 2 = 0 then 1.0 else -1.0
+            let 余子式 = 余子式 矩阵 0 系数
+            符号 * float 系数 * 行列式 余子式)
+        |> List.sum
 
 type 环元 =
     | 标量 of 标量
