@@ -114,17 +114,20 @@ let rec 行列式 (矩阵: 矩阵) =
 
 let 伴随矩阵 (矩阵: 矩阵) =
     let 范数 = Array.length 矩阵
-    let 代数余子式 i j = 
+
+    let 代数余子式 i j =
         let 符号 = if (i + j) % 2 = 0 then 1.0 else -1.0
         符号 * 行列式 (余子式 矩阵 i j)
-    
-    Array.init 范数 (fun i ->
-        Array.init 范数 (fun j -> 代数余子式 i j))
-    |> 转置
+
+    Array.init 范数 (fun i -> Array.init 范数 (fun j -> 代数余子式 i j)) |> 转置
 
 let 逆矩阵 (矩阵: 矩阵) =
     let 行列式值 = 行列式 矩阵
-    标量乘矩阵 (1.0 / 行列式值) (伴随矩阵 矩阵)
+
+    if 行列式值 = 0.0 then
+        failwith "行列式为0，无法求逆矩阵"
+    else
+        标量乘矩阵 (1.0 / 行列式值) (伴随矩阵 矩阵)
 
 
 type 环元 =
@@ -154,6 +157,27 @@ type 环(value: 环元) =
         | 矩阵 x, 矩阵 y -> 环 (矩阵 (矩阵加 x y))
         | _ -> failwith "不支持的类型"
 
+    member this.行列式() =
+        match this.value with
+        | 矩阵 m -> 行列式 m
+        | _ -> failwith "不是矩阵"
+
+    member this.逆矩阵() =
+        match this.value with
+        | 矩阵 m -> 逆矩阵 m
+        | _ -> failwith "不是矩阵"
+
+    member this.latex() =
+        match this.value with
+        | 标量 x -> sprintf "%f" x
+        | 向量 x -> sprintf "%A" x
+        | 矩阵 x ->
+            let elements =
+                x
+                |> Array.map (fun row -> row |> Array.map (sprintf "%g") |> String.concat " & ")
+                |> String.concat "\\\\\n"
+            sprintf "\\begin{vmatrix}\n%s\n\\end{vmatrix}" elements
+
     override this.ToString() =
         match this.value with
         | 标量 x -> sprintf "%f" x
@@ -176,11 +200,6 @@ type 环(value: 环元) =
         | 向量 x -> hash x
         | 矩阵 x -> hash x
 
-//TODO: latex 输出 type类里实现
-
-//TODO: 行列式
-
-//TODO: 逆矩阵
 
 //TODO: 特征值
 
