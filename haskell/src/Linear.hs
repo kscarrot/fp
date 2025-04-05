@@ -16,6 +16,8 @@ module Linear
     矩阵乘PointFree,
     零矩阵,
     单位矩阵,
+    行列式,
+    余子式,
   )
 where
 
@@ -30,7 +32,7 @@ type Matrix = [Vector]
 零矩阵 n m = replicate n (replicate m 0)
 
 单位矩阵 :: Int -> Matrix
-单位矩阵 n = [[if i == j then 1 else 0 | j <- [0..n-1]] | i <- [0..n-1]]
+单位矩阵 n = [[if i == j then 1 else 0 | j <- [0 .. n - 1]] | i <- [0 .. n - 1]]
 
 标量加 :: Scalar -> Scalar -> Scalar
 标量加 x y = x + y
@@ -58,7 +60,6 @@ type Matrix = [Vector]
 向量乘 :: Vector -> Vector -> Scalar
 向量乘 = (sum .) . zipWith (*)
 
-
 向量乘矩阵 :: Vector -> Matrix -> Vector
 向量乘矩阵 向量 矩阵 = [向量 `向量乘` 列 | 列 <- 转置 矩阵]
 
@@ -69,7 +70,7 @@ type Matrix = [Vector]
 矩阵乘 ma mb = [[行 `向量乘` 列 | 列 <- 转置 mb] | 行 <- ma]
 
 -- 矩阵乘 PointFree 形式比较抽象 需要要flip置换顺序
--- 矩阵乘PointFree ma mb 
+-- 矩阵乘PointFree ma mb
 --             = map (\row -> map (\col -> 向量乘 row col) (转置 mb)) ma
 --             = map (\row -> map (向量乘 row) (转置 mb)) ma
 --             ≡ flip (map (flip (map . 向量乘) (转置 mb))) ma
@@ -77,3 +78,19 @@ type Matrix = [Vector]
 --             ≡ flip ( (map . flip (map . 向量乘)) . 转置 ) ma mb
 矩阵乘PointFree :: Matrix -> Matrix -> Matrix
 矩阵乘PointFree = flip $ map . flip (map . 向量乘) . 转置
+
+移除指定行 :: Int -> Matrix -> Matrix
+移除指定行 行 矩阵 = take 行 矩阵 ++ drop (行 + 1) 矩阵
+
+移除指定列 :: Int -> Vector -> Vector
+移除指定列 列 向量 = take 列 向量 ++ drop (列 + 1) 向量
+
+余子式 :: Matrix -> Int -> Int -> Matrix
+余子式 矩阵 行 列 = map (移除指定列 列) (移除指定行 行 矩阵)
+
+行列式 :: Matrix -> Scalar
+行列式 [] = 0
+行列式 [[x]] = x
+行列式 矩阵 = sum [((-1) ^ i) * (head 矩阵 !! i) * 行列式 (余子式 矩阵 0 i) | i <- [0 .. n - 1]]
+  where
+    n = length 矩阵
