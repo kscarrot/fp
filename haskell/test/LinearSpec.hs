@@ -3,6 +3,16 @@ module LinearSpec (spec) where
 import Linear
 import Test.Hspec
 
+-- 添加浮点数矩阵比较函数
+矩阵近似相等 :: Double -> Matrix -> Matrix -> Bool
+矩阵近似相等 精度 m1 m2 =
+  length m1 == length m2
+    && and
+      [ length r1 == length r2
+          && and [abs (x - y) < 精度 | (x, y) <- zip r1 r2]
+        | (r1, r2) <- zip m1 m2
+      ]
+
 spec :: Spec
 spec = do
   describe "加法运算" $ do
@@ -73,7 +83,17 @@ spec = do
   describe "行列式" $ do
     it "行列式" $ do
       行列式 [[1, 2], [3, 4]] `shouldBe` -2
+      行列式 [[1, 3], [2, 1]] `shouldBe` -5
       行列式 [[1, 2, 3], [4, 5, 6], [7, 8, 9]] `shouldBe` 0
       行列式 [[1, 2, 3], [4, 5, 6], [7, 8, 10]] `shouldBe` -3
       行列式 [[1, 1, 1], [3, 5, 6], [9, 25, 36]] `shouldBe` 6
       行列式 [[0, 0, 0, 1], [0, 0, 2, 0], [0, 3, 0, 0], [4, 0, 0, 0]] `shouldBe` 24
+
+  describe "伴随矩阵" $ do
+    it "伴随矩阵" $ do
+      伴随矩阵 [[1, 2], [3, 1]] `shouldBe` [[1, -2], [-3, 1]]
+      伴随矩阵 [[1, 2, 3], [4, 5, 6], [7, 8, 10]] `shouldBe` [[2, 4, -3], [2, -11, 6], [-3, 6, -3]]
+
+  describe "逆矩阵" $ do
+    it "2x2矩阵的逆矩阵" $ do
+      逆矩阵 [[1, 2], [3, 1]] `shouldSatisfy` 矩阵近似相等 1e-10 [[-0.2, 0.4], [0.6, -0.2]]

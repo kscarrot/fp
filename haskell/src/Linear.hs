@@ -18,6 +18,8 @@ module Linear
     单位矩阵,
     行列式,
     余子式,
+    伴随矩阵,
+    逆矩阵,
   )
 where
 
@@ -94,3 +96,11 @@ type Matrix = [Vector]
 行列式 矩阵 = sum [((-1) ^ i) * (head 矩阵 !! i) * 行列式 (余子式 矩阵 0 i) | i <- [0 .. n - 1]]
   where
     n = length 矩阵
+
+伴随矩阵 :: Matrix -> Matrix
+伴随矩阵 矩阵 = 转置 [[行列式 (余子式 矩阵 i j) * ((-1) ^ (i + j)) | j <- [0 .. n - 1]] | i <- [0 .. n - 1]]
+  where
+    n = length 矩阵
+
+逆矩阵 :: Matrix -> Matrix
+逆矩阵 矩阵 = (1 / 行列式 矩阵) `标量乘矩阵` 伴随矩阵 矩阵
