@@ -1,4 +1,9 @@
 {
   "editor.fontLigatures": true,
-  "editor.fontFamily": "Fira Code"
+  "editor.fontFamily": "Fira Code,Microsoft Yahei UI, monospace",
+  "terminal.integrated.fontFamily": "Menlo, Monaco, 'Courier New', monospace",
+  "[fsharp]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "Ionide.Ionide-fsharp"
+  }
 }

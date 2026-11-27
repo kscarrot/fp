@@ -54,7 +54,7 @@ library
     import:           warnings
 
     -- Modules exported by the library.
-    exposed-modules:  Linear
+    exposed-modules:  Linear, QuickSort, Tree, List, Link
 
     -- Modules included in this library but not exported.
     -- other-modules:
@@ -63,7 +63,7 @@ library
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
-    build-depends:    base ^>=4.17.2.1
+    build-depends:    base ^>=4.18.2.1
 
     -- Directories containing source files.
     hs-source-dirs:   src
@@ -86,7 +86,7 @@ executable fp
 
     -- Other library packages from which modules are imported.
     build-depends:
-        base ^>=4.17.2.1,
+        base ^>=4.18.2.1,
         fp
 
     -- Directories containing source files.
@@ -103,7 +103,7 @@ test-suite fp-test
     default-language: GHC2021
 
     -- Modules included in this executable, other than Main.
-    other-modules:    LinearSpec
+    other-modules:    LinearSpec, QuickSortSpec
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -119,6 +119,6 @@ test-suite fp-test
 
     -- Test dependencies.
     build-depends:
-        base ^>=4.17.2.1,
+        base ^>=4.18.2.1,
         fp,
         hspec ^>=2.11.0

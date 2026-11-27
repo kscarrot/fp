@@ -1,13 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <IsPackable>false</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>
         <Compile Include="LinearTests.fs"/>
         <Compile Include="LinearWithStringTests.fs"/>
+        <Compile Include="JsonTests.fs"/>
     </ItemGroup>
 
     <ItemGroup>

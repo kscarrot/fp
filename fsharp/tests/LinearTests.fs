@@ -262,7 +262,7 @@ let ``矩阵乘法转置简单验证`` () =
 
     let AB_T =
         match (A <*> B).value with
-        | 矩阵 M -> 环 (矩阵 (转置 M))
+        | 矩阵 m -> 环 (矩阵 (转置 m))
         | _ -> failwith "结果不是矩阵"
 
     AB_T = (BT <*> AT) |> should equal true

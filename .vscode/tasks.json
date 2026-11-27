@@ -2,40 +2,10 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "_运行测试",
-      "command": "dotnet",
+      "label": "F#：运行测试并生成报告",
       "type": "shell",
-      "args": ["test", "${workspaceFolder}/fsharp/fsharp.sln"],
-      "group": "test",
-      "hide": true
-    },
-    {
-      "label": "_清理测试报告目录",
-      "command": "rm",
-      "type": "shell",
-      "args": ["-rf", "${workspaceFolder}/fsharp/TestReports/*"],
-      "windows": {
-        "command": "if exist",
-        "args": ["${workspaceFolder}\\fsharp\\TestReports\\*", "del", "/F", "/Q", "${workspaceFolder}\\fsharp\\TestReports\\*"]
-      },
-      "hide": true
-    },
-    {
-      "label": "_生成测试报告",
       "command": "bash",
-      "type": "shell",
-      "args": [
-        "-c",
-        "dotnet test ${workspaceFolder}/fsharp/fsharp.sln --results-directory ${workspaceFolder}/fsharp/TestReports --logger html && mv ${workspaceFolder}/fsharp/TestReports/*.html ${workspaceFolder}/fsharp/TestReports/TestReport.html"
-      ],
-      "group": "test",
-      "dependsOn": ["_清理测试报告目录"],
-      "hide": true
-    },
-    {
-      "label": "F#运行测试并生成报告",
-      "dependsOrder": "sequence",
-      "dependsOn": ["_运行测试", "_生成测试报告"],
+      "args": ["${workspaceFolder}/.vscode/fsharp-test-report.sh"],
       "group": {
         "kind": "test",
         "isDefault": true
